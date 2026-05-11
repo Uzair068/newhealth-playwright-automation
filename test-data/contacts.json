@@ -1,0 +1,22 @@
+{
+  "validContact": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "birthdate": "1990-01-15",
+    "email": "john.doe@healthcare.com",
+    "phone": "8005551234",
+    "address": "123 Main St",
+    "city": "Hyderabad",
+    "country": "India"
+  },
+  "editContact": {
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "birthdate": "1985-06-20",
+    "email": "jane.smith@healthcare.com",
+    "phone": "8005555678",
+    "address": "456 Oak Ave",
+    "city": "Mumbai",
+    "country": "India"
+  }
+}

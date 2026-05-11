@@ -1,0 +1,22 @@
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# Environment files
+.env
+.env.*
+
+# Allure
+allure-results/
+allure-report/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
