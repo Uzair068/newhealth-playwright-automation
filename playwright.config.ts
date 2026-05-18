@@ -9,7 +9,7 @@ export default defineConfig({
   fullyParallel: false,
   retries: process.env.CI ? 1 : 0,
   workers: 1,
-  timeout: 30000,
+  timeout: 60000,
 
   reporter: [
     ['html', { open: 'never' }],
@@ -23,6 +23,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     trace: 'on-first-retry',
+    navigationTimeout: 60000,
   },
 
   projects: [

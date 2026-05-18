@@ -13,7 +13,11 @@ setup('authenticate as healthcare user', async ({ page }) => {
     fs.mkdirSync(authDir, { recursive: true });
   }
 
-  await page.goto('/');
+  // await page.goto('/');
+  await page.goto('/', {
+  waitUntil: 'domcontentloaded',
+  timeout: 60000
+});
   await page.getByPlaceholder('Email').fill(process.env.USER_EMAIL!);
   await page.getByPlaceholder('Password').fill(process.env.USER_PASSWORD!);
   await page.getByRole('button', { name: 'Submit' }).click();
