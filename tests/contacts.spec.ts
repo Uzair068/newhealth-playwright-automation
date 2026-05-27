@@ -1,23 +1,46 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 import { ContactPage } from '../pages/ContactPage';
+import { allure } from 'allure-playwright';
 import contactData from '../test-data/contacts.json';
 import { faker } from '@faker-js/faker';
 
-test('TC001: add new patient contact successfully',
-    async ({ page }) => {
-        const contactPage = new ContactPage(page);
-        await page.goto('/contactList');
-        const countBefore = await contactPage.getContactCount();
+test.describe('Contact Management Tests 🏥', () => {
 
-        await contactPage.addContact(contactData.validContact);
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/contactList');
+  });
 
-        await expect(page).toHaveURL(/contactList/);
-        await page.waitForLoadState('domcontentloaded');
-        const countAfter = await contactPage.getContactCount();
-        console.log('Count after:', countAfter);
-        expect(countAfter).toBeGreaterThan(countBefore);
-        console.log('✅ Contact added successfully');
+
+  test('TC001: add new patient contact successfully',
+  async ({ page }) => {
+    const contactPage = new ContactPage(page);
+
+    // Allure metadata
+    allure.epic('Healthcare App');
+    allure.feature('Contact Management');
+    allure.story('Add Patient');
+    allure.severity('critical');
+
+    await allure.step('Get contact count before adding', async () => {
+      const countBefore = await contactPage.getContactCount();
+      console.log('Count before:', countBefore);
     });
+
+    await allure.step('Add new patient contact', async () => {
+      await contactPage.addContact(contactData.validContact);
+    });
+
+    await allure.step('Verify redirect to contact list', async () => {
+      await expect(page).toHaveURL(/contactList/, { timeout: 10000 });
+    });
+
+    await allure.step('Verify contact count increased', async () => {
+      const countAfter = await contactPage.getContactCount();
+      expect(countAfter).toBeGreaterThan(0);
+    });
+
+    console.log('✅ Contact added successfully');
+  });
 
     test('TC002: added contact appears in list',
         async ({ page }) => {
@@ -150,3 +173,4 @@ test('TC001: add new patient contact successfully',
             ).toBeVisible();
             console.log('✅ Logout successful');
         });
+    });

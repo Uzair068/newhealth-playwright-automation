@@ -14,6 +14,7 @@ export default defineConfig({
   reporter: [
     ['html', { open: 'never' }],
     ['list'],
+    ['allure-playwright'],
   ],
 
   use: {
@@ -27,17 +28,21 @@ export default defineConfig({
   },
 
   projects: [
-    {
-      name: 'setup',
-      testMatch: /.*\.setup\.ts/,
+  {
+    name: 'setup',
+    testMatch: /.*\.setup\.ts/,
+  },
+  {
+    name: 'chromium',
+    use: {
+      ...devices['Desktop Chrome'],
+      storageState: 'playwright/.auth/user.json',
     },
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/user.json',
-      },
-      dependencies: ['setup'],
-    },
-  ],
+    dependencies: ['setup'],
+  },
+  {
+    name: 'api',
+    testMatch: /.*\.api\.spec\.ts/,
+  },
+],
 });

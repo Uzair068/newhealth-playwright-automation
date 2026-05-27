@@ -12,7 +12,11 @@ export class ContactPage {
   readonly birthdateInput: Locator;
   readonly emailInput: Locator;
   readonly phoneInput: Locator;
-  readonly addressInput: Locator;
+
+  readonly street1Input: Locator;
+  readonly stateProvinceInput: Locator;
+  readonly postalCodeInput: Locator;
+
   readonly cityInput: Locator;
   readonly countryInput: Locator;
   readonly submitButton: Locator;
@@ -29,7 +33,11 @@ export class ContactPage {
     this.birthdateInput = page.locator('[id="birthdate"]');
     this.emailInput = page.locator('[id="email"]');
     this.phoneInput = page.locator('[id="phone"]');
-    this.addressInput = page.locator('[id="street1"]');
+
+    this.street1Input = page.locator('[id="street1"]');
+    this.stateProvinceInput = page.locator('[id="stateProvince"]');
+    this.postalCodeInput = page.locator('[id="postalCode"]');
+
     this.cityInput = page.locator('[id="city"]');
     this.countryInput = page.locator('[id="country"]');
     this.submitButton = page.getByRole('button', { name: 'Submit' });
@@ -39,30 +47,47 @@ export class ContactPage {
     await this.page.goto('/contactList');
   }
 
- async addContact(contact: {
-  firstName: string;
-  lastName: string;
-  birthdate?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  country?: string;
-}) { await this.addContactButton.click();
-  await this.page.waitForLoadState('domcontentloaded');
+  async addContact(contact: {
+    firstName: string;
+    lastName: string;
+    birthdate?: string;
+    email?: string;
+    phone?: string;
+    street1?: string;
+    stateProvince?: string;
+    postalCode?: string;
+    city?: string;
+    country?: string;
+  }) {
+    console.log('Contact passed to addContact:', contact);
 
-  await this.firstNameInput.fill(contact.firstName);
-  await this.lastNameInput.fill(contact.lastName);
-  if (contact.birthdate) await this.birthdateInput.fill(contact.birthdate);
-  if (contact.email) await this.emailInput.fill(contact.email);
-  if (contact.phone) await this.phoneInput.fill(contact.phone);
-  if (contact.address) await this.addressInput.fill(contact.address);
-  if (contact.city) await this.cityInput.fill(contact.city);
-  if (contact.country) await this.countryInput.fill(contact.country);
+    // 🔧 Clean up duplicates before adding
+    if (contact.email) {
+      await this.deleteDuplicateContacts(contact.email);
+    }
 
-  await this.submitButton.click();
-  await this.page.waitForLoadState('domcontentloaded');
-  await this.page.waitForTimeout(2000);
+    await this.addContactButton.click();
+    await this.page.waitForURL(/addContact/);
+
+    await this.firstNameInput.fill(contact.firstName);
+    await this.lastNameInput.fill(contact.lastName);
+    if (contact.birthdate) await this.birthdateInput.fill(contact.birthdate);
+    if (contact.email) await this.emailInput.fill(contact.email);
+    if (contact.phone) await this.phoneInput.fill(contact.phone);
+
+    if (contact.street1) await this.street1Input.fill(contact.street1);
+    if (contact.stateProvince) await this.stateProvinceInput.fill(contact.stateProvince);
+    if (contact.postalCode) await this.postalCodeInput.fill(contact.postalCode);
+
+    if (contact.city) await this.cityInput.fill(contact.city);
+    if (contact.country) await this.countryInput.fill(contact.country);
+
+    await this.submitButton.click();
+
+    // ✅ Verify by unique email
+    await expect(
+      this.page.locator('tr.contactTableBodyRow').filter({ hasText: contact.email })
+    ).toBeVisible({ timeout: 10000 });
   }
 
   async getContactCount(): Promise<number> {
@@ -70,13 +95,24 @@ export class ContactPage {
   }
 
   async clickContact(firstName: string) {
-    await this.contactListItems
-      .filter({ hasText: firstName })
-      .click();
+    await this.contactListItems.filter({ hasText: firstName }).click();
   }
 
   async logout() {
     await this.logoutButton.click();
     await expect(this.page).toHaveURL('/');
+  }
+
+  // 🔧 NEW: helper to delete duplicates by email
+  async deleteDuplicateContacts(email: string) {
+    const rows = this.contactListItems.filter({ hasText: email });
+    const count = await rows.count();
+
+    for (let i = 1; i < count; i++) {
+      await rows.nth(i).click(); // open duplicate
+      await this.page.getByRole('button', { name: 'Delete Contact' }).click();
+      await this.page.getByRole('button', { name: 'Confirm' }).click();
+      await this.page.waitForURL(/contactList/);
+    }
   }
 }

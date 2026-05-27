@@ -8,9 +8,14 @@ export interface PatientData {
   birthdate: string;
   email: string;
   phone: string;
+  street1: string;        // 🔧 NEW
   city: string;
+  stateProvince: string;  // 🔧 NEW
+  postalCode: string;     // 🔧 NEW
   country: string;
 }
+
+
 
 export function readPatientsFromCSV(filename: string): PatientData[] {
   const filePath = path.join(process.cwd(), 'test-data', 'csv', filename);
